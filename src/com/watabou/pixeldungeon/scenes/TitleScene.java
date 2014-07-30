@@ -17,6 +17,7 @@
  */
 package com.watabou.pixeldungeon.scenes;
 
+import com.watabou.modloader.ModScene;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
@@ -36,6 +37,7 @@ public class TitleScene extends PixelScene {
 	private static final String TXT_HIGHSCORES	= "Rankings";
 	private static final String TXT_BADGES		= "Badges";
 	private static final String TXT_ABOUT		= "About";
+	private static final String TXT_MODS		= "Mods";
 	
 	@Override
 	public void create() {
@@ -100,6 +102,15 @@ public class TitleScene extends PixelScene {
 		};
 		btnHighscores.setPos( w / 2, btnPlay.top() );
 		add( btnHighscores );
+		
+		DashboardItem btnMods = new DashboardItem(TXT_MODS, 5) {
+			@Override
+			protected void onClick() {
+				Game.switchScene( ModScene.class );
+			}
+		};
+		btnMods.setPos( w / 2, btnPlay.top()-DashboardItem.SIZE);
+		add( btnMods );
 		
 		BitmapText version = new BitmapText( "v " + Game.version, font1x );
 		version.measure();
