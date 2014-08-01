@@ -66,7 +66,10 @@ public class ModScene extends PixelScene {
 				panel.y + panel.marginTop(),
 				panel.innerWidth(),
 				panel.innerHeight() );
-		pane.content().add( new ModButton( new TestMod() ) );
+		
+		for (Mod mod : ModLoader.allMods()) {
+			pane.content().add( new ModButton( mod.getInfo() ) );
+		}
 		
 		pos = (int)panel.height() + MARGIN;
 		
