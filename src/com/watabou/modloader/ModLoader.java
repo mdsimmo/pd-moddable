@@ -14,7 +14,6 @@ import dalvik.system.DexClassLoader;
 
 public abstract class ModLoader {
 
-	// TODO remove these
 	private static Game game = Game.instance;
 	private static final File dexDir = game.getDir( "dex", Game.MODE_PRIVATE );
 
@@ -24,7 +23,6 @@ public abstract class ModLoader {
 		Intent intent = new Intent( "com.watabou.pixeldungeon.LOAD_MOD" );
 		List<ResolveInfo> list = game.getPackageManager()
 				.queryBroadcastReceivers( intent, 0 );
-		// TODO load in order of priority
 		for (ResolveInfo info : list ) {
 			String source = info.activityInfo.applicationInfo.sourceDir;
 			String classname = info.activityInfo.name;
