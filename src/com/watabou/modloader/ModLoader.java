@@ -1,14 +1,13 @@
 package com.watabou.modloader;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.pm.ResolveInfo;
+import android.util.Log;
 
 import com.watabou.noosa.Game;
 
@@ -18,52 +17,49 @@ public abstract class ModLoader {
 
 	// TODO remove these
 	private static Game game = Game.instance;
-	private static final int BUFFER_SIZE = 1028 * 8;
-	private static final String MOD_LOCATION = "plugins/ModTest.apk";
 	private static final File dexDir = game.getDir( "dex", Game.MODE_PRIVATE );
-	private static final File dexFile = new File(dexDir, "ModTest.apk");
-	
+
 	private static List<Mod> mods = new ArrayList<>();
-	
+
 	@SuppressLint("NewApi")
 	public static void loadPlugins() {
-		try {
-			InputStream is = game.getAssets().open( MOD_LOCATION );
-		BufferedInputStream bis = new BufferedInputStream( is );
-
-		BufferedOutputStream out = new BufferedOutputStream(
-				new FileOutputStream( dexFile ) );
-		byte[] buf = new byte[BUFFER_SIZE];
-		int len;
-		while ( (len = bis.read( buf, 0, BUFFER_SIZE )) > 0 ) {
-			out.write( buf, 0, len );
-		}
-		out.close();
-		bis.close();
-
-		DexClassLoader dcl = new DexClassLoader( 
-				dexFile.getAbsolutePath(),
-				dexDir.getAbsolutePath(),
-				null,
-				game.getClassLoader() );
-		Class<?> clazz = dcl.loadClass( "com.mdsimmo.modtest.TestMod" );
-		Mod mod = (Mod)clazz.newInstance();
-		register(mod);
-		} catch ( Exception e ) {
-			e.printStackTrace();
+		Intent intent = new Intent( "com.watabou.pixeldungeon.LOAD_MOD" );
+		List<ResolveInfo> list = game.getPackageManager()
+				.queryBroadcastReceivers( intent, 0 );
+		// TODO load in order of priority
+		for (ResolveInfo info : list ) {
+			String source = info.activityInfo.applicationInfo.sourceDir;
+			String classname = info.activityInfo.name;
+			try {
+				DexClassLoader dcl = new DexClassLoader( source,
+						dexDir.getAbsolutePath(), null, game.getClassLoader() );
+				Class<?> clazz = dcl.loadClass( classname );
+				Mod mod = (Mod) clazz.newInstance();
+				register( mod );
+			} catch ( ClassNotFoundException e ) {
+				Log.e( "ModLoader", "Couldn't find class " + classname );
+			} catch ( ClassCastException e ) {
+				Log.e( "ModLoader", "Couldn't cast " + classname + " to "
+						+ Mod.class );
+			} catch ( Exception e ) {
+				Log.e( "ModLoader", "Couldn't load class " + classname );
+			}
 		}
 	}
-	
-	public static void register(Mod mod) {
+
+	public static void register( Mod mod ) {
+		Log.i( "ModLoader", "Enabling mod: " + mod.getInfo().getModName() );
 		mods.add( mod );
 		mod.onEnable();
 	}
-	
+
 	public static List<Mod> allMods() {
 		return mods;
 	}
 
 	public static void destroyMods() {
+		for (Mod mod : mods)
+			mod.onDisable();
 		mods.clear();
 	}
 }

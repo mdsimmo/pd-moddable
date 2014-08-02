@@ -91,7 +91,6 @@ public class PixelDungeon extends Game {
 	protected void onCreate( Bundle savedInstanceState ) {
 		super.onCreate( savedInstanceState );
 		
-		Log.w( "PixelDungeon", "new ModLoader()" );
 		ModLoader.loadPlugins();
 		
 		Display display = instance.getWindowManager().getDefaultDisplay();
