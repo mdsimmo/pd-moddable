@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.util.Log;
@@ -21,7 +20,6 @@ public abstract class ModLoader {
 
 	private static List<Mod> mods = new ArrayList<>();
 
-	@SuppressLint("NewApi")
 	public static void loadPlugins() {
 		Intent intent = new Intent( "com.watabou.pixeldungeon.LOAD_MOD" );
 		List<ResolveInfo> list = game.getPackageManager()
@@ -31,9 +29,9 @@ public abstract class ModLoader {
 			String source = info.activityInfo.applicationInfo.sourceDir;
 			String classname = info.activityInfo.name;
 			try {
-				DexClassLoader dcl = new DexClassLoader( source,
+				ClassLoader cl = new DexClassLoader( source,
 						dexDir.getAbsolutePath(), null, game.getClassLoader() );
-				Class<?> clazz = dcl.loadClass( classname );
+				Class<?> clazz = cl.loadClass( classname );
 				Mod mod = (Mod) clazz.newInstance();
 				register( mod );
 			} catch ( ClassNotFoundException e ) {
