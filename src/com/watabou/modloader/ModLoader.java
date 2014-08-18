@@ -37,8 +37,13 @@ public abstract class ModLoader {
 			} catch ( ClassCastException e ) {
 				Log.e( "ModLoader", "Couldn't cast " + classname + " to "
 						+ Mod.class );
+			} catch ( InstantiationException e ) {
+				Log.e( "ModLoader", "Couldn't make new instance of " + classname );
+			} catch ( IllegalAccessException e ) {
+				Log.e( "ModLoader", "Illeagal access to " + classname );
 			} catch ( Exception e ) {
-				Log.e( "ModLoader", "Couldn't load class " + classname );
+				Log.e( "ModLoader", "Unknown error loading " + classname );
+				e.printStackTrace();
 			}
 		}
 	}
@@ -54,7 +59,7 @@ public abstract class ModLoader {
 	}
 
 	public static void destroyMods() {
-		for (Mod mod : mods)
+		for (Mod mod : mods )
 			mod.onDisable();
 		mods.clear();
 	}
